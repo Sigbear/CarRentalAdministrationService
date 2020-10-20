@@ -9,14 +9,39 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarRentalAdministrationService.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20201020121756_initialCreate")]
-    partial class initialCreate
+    [Migration("20201020164606_v2")]
+    partial class v2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.9");
+
+            modelBuilder.Entity("CarRentalAdministrationService.Model.Car", b =>
+                {
+                    b.Property<int>("CarId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Available")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CarCategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MileageInKilometers")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CarId");
+
+                    b.HasIndex("CarCategoryId");
+
+                    b.ToTable("Cars");
+                });
 
             modelBuilder.Entity("CarRentalAdministrationService.Model.CarCategory", b =>
                 {
@@ -67,8 +92,11 @@ namespace CarRentalAdministrationService.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("CarCategoryId")
+                    b.Property<int?>("CarId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Closed")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
@@ -78,16 +106,23 @@ namespace CarRentalAdministrationService.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.HasIndex("CarCategoryId");
+                    b.HasIndex("CarId");
 
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("CarRentalAdministrationService.Model.Order", b =>
+            modelBuilder.Entity("CarRentalAdministrationService.Model.Car", b =>
                 {
                     b.HasOne("CarRentalAdministrationService.Model.CarCategory", "CarCategory")
                         .WithMany()
                         .HasForeignKey("CarCategoryId");
+                });
+
+            modelBuilder.Entity("CarRentalAdministrationService.Model.Order", b =>
+                {
+                    b.HasOne("CarRentalAdministrationService.Model.Car", "Car")
+                        .WithMany()
+                        .HasForeignKey("CarId");
                 });
 #pragma warning restore 612, 618
         }

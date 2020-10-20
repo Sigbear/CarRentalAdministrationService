@@ -6,8 +6,8 @@ namespace CarRentalAdministrationService.Model
     {
         public int OrderId { get; set; }
         public DateTime Created { get; set; }
+        public DateTime Closed { get; set; }
         public DateTime CustomerDateOfBirth { get; set; }
-        public virtual CarCategory CarCategory { get; set; }
-
+        public virtual Car Car { get; set; }
     }
 }

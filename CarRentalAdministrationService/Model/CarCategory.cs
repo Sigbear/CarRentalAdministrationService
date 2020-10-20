@@ -1,4 +1,7 @@
-﻿namespace CarRentalAdministrationService.Model
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CarRentalAdministrationService.Model
 {
     public class CarCategory
     {

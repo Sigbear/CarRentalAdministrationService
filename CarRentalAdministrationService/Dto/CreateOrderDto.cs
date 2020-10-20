@@ -2,7 +2,7 @@
 
 namespace CarRentalAdministrationService.Dto
 {
-    public class OrderDto
+    public class CreateOrderDto
     {
         public DateTime Created { get; set; }
         public string CarCategory { get; set; }

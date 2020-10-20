@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CarRentalAdministrationService.Model;
 using CarRentalAdministrationService.Dto;
+using System;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace CarRentalAdministrationService.Controllers
 {
@@ -23,16 +25,8 @@ namespace CarRentalAdministrationService.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            var orders  = await _context.Orders.ToListAsync();
-            var ordersFull = from order in orders
-                             join category in _context.CarCategories
-                             on order.CarCategory.CarCategoryId equals category.CarCategoryId
-                             select order;
-            if(ordersFull == null)
-            {
-                return NotFound();
-            }
-            return ordersFull.ToList();
+            var orders  = await _context.Orders.Include(order => order.Car).ToListAsync();
+            return orders;
         }
 
         // GET: api/orders/{id}
@@ -51,11 +45,21 @@ namespace CarRentalAdministrationService.Controllers
 
         // POST: api/orders
         [HttpPost]
-        public async Task<ActionResult<OrderDto>> PostOrder(OrderDto orderDto)
+        public async Task<ActionResult<CreateOrderDto>> PostOrder(CreateOrderDto orderDto)
         {
-            var category = await _context.CarCategories.FirstAsync(category => category.Category.Equals(orderDto.CarCategory));
-            
-            if(category == null)
+            Car car;
+            try
+            {
+                car = await _context.Cars
+                .Include(car => car.CarCategory)
+                .FirstAsync<Car>(car => car.CarCategory.Category.Equals(orderDto.CarCategory) && car.Available);
+            } catch (InvalidOperationException)
+            {
+                return NotFound("No cars available in that category");
+            }
+
+            // available car found with the right category
+            if (car == null)
             {
                 return NotFound($"Category {orderDto.CarCategory} could not be found in the system.");
             }
@@ -63,23 +67,81 @@ namespace CarRentalAdministrationService.Controllers
             {
                 Created = orderDto.Created,
                 CustomerDateOfBirth = orderDto.CustomerDateOfBirth,
-                CarCategory = category
+                Car = car
             };
+            car.Available = false;
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
+
         }
 
-        private bool OrderExists(int id)
+        // Patch: api/orders
+        [HttpPatch]
+        public async Task<ActionResult<ReturnOrderDto>> PostOrder(ReturnOrderDto returnOrderDto)
         {
-            return _context.Orders.Any(e => e.OrderId == id);
+            Order order;
+            try
+            {
+                order = await _context.Orders.Include(order => order.Car).ThenInclude(car => car.CarCategory).FirstAsync(order => order.OrderId == returnOrderDto.BookingNr && !order.Car.Available);
+                if (order == null)
+                {
+                    return NotFound();
+                }
+                // check that mileage is not less than it was when hired
+                if (order.Car.MileageInKilometers >= returnOrderDto.MileageInKm)
+                {
+                    return BadRequest("Stated mileage is lower than mileage at point of rental, please check that the information is correct and try again.");
+                }
+                // check that the date is not earlier than point of hire.
+                if (DateTime.Compare(returnOrderDto.ReturnDate, order.Created) < 0)
+                {
+                    return BadRequest("Return time is earlier than pick up time. Please verify return time and try again.");
+                }
+
+                double cost = CalculateCost(order, returnOrderDto);
+                var receipt = new OrderReceiptDto { Cost = cost };
+
+                order.Car.MileageInKilometers = returnOrderDto.MileageInKm;
+                order.Car.Available = true;
+                order.Closed = returnOrderDto.ReturnDate;
+                await _context.SaveChangesAsync();
+                
+                return Ok(receipt);
+
+            }
+            catch (Exception ex)
+            {
+                if(ex is InvalidOperationException || ex is NotImplementedException)
+                {
+                    return NotFound();
+                } else
+                {
+                    throw;
+                }
+            }
         }
 
-        private bool CarCateGoryExists(string category)
+        private double CalculateCost(Order order, ReturnOrderDto returnOrderDto)
         {
-            return _context.CarCategories.Any(e => e.Category.Equals(category));
-        }
 
+            int baseDayRentalCost = order.Car.CarCategory.BaseDayRentalCost;
+            double numberOfDays = (returnOrderDto.ReturnDate - order.Created).TotalDays;
+            double baseCost = baseDayRentalCost * numberOfDays;
+            double kmPrice = order.Car.CarCategory.KilometerPrice * (returnOrderDto.MileageInKm - order.Car.MileageInKilometers);
+
+            switch(order.Car.CarCategory.Category.ToLower())
+            {
+                case "compact":
+                    return baseCost;
+                case "premium":
+                    return baseCost * 1.2 + kmPrice;
+                case "minivan":
+                    return baseCost * 1.7 + kmPrice;
+                default:
+                    throw new NotImplementedException();
+            }
+        }       
     }
 }

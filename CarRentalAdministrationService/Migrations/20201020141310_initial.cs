@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CarRentalAdministrationService.Migrations
 {
-    public partial class initialCreate : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -23,6 +23,28 @@ namespace CarRentalAdministrationService.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Cars",
+                columns: table => new
+                {
+                    CarId = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(nullable: true),
+                    CarCategoryId = table.Column<int>(nullable: true),
+                    MileageInKilometers = table.Column<int>(nullable: false),
+                    Available = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cars", x => x.CarId);
+                    table.ForeignKey(
+                        name: "FK_Cars_CarCategories_CarCategoryId",
+                        column: x => x.CarCategoryId,
+                        principalTable: "CarCategories",
+                        principalColumn: "CarCategoryId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
@@ -30,16 +52,16 @@ namespace CarRentalAdministrationService.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Created = table.Column<DateTime>(nullable: false),
                     CustomerDateOfBirth = table.Column<DateTime>(nullable: false),
-                    CarCategoryId = table.Column<int>(nullable: true)
+                    CarId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.OrderId);
                     table.ForeignKey(
-                        name: "FK_Orders_CarCategories_CarCategoryId",
-                        column: x => x.CarCategoryId,
-                        principalTable: "CarCategories",
-                        principalColumn: "CarCategoryId",
+                        name: "FK_Orders_Cars_CarId",
+                        column: x => x.CarId,
+                        principalTable: "Cars",
+                        principalColumn: "CarId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -59,15 +81,23 @@ namespace CarRentalAdministrationService.Migrations
                 values: new object[] { 3, 150, "Minivan", 15 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_CarCategoryId",
-                table: "Orders",
+                name: "IX_Cars_CarCategoryId",
+                table: "Cars",
                 column: "CarCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_CarId",
+                table: "Orders",
+                column: "CarId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "Cars");
 
             migrationBuilder.DropTable(
                 name: "CarCategories");

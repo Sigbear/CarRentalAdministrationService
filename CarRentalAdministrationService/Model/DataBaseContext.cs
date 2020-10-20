@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CarRentalAdministrationService.Model
 {
@@ -6,10 +7,7 @@ namespace CarRentalAdministrationService.Model
     {
         public DbSet<Order> Orders { get; set; }
         public DbSet<CarCategory> CarCategories { get; set; }
-
-        //public DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options)
-        //{
-        //}
+        public DbSet<Car> Cars { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -18,7 +16,8 @@ namespace CarRentalAdministrationService.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CarCategory>().HasData(
+            var carCategories = new[]
+            {
                 new CarCategory
                 {
                     CarCategoryId = 1,
@@ -40,7 +39,37 @@ namespace CarRentalAdministrationService.Model
                     BaseDayRentalCost = 150,
                     KilometerPrice = 15
                 }
-            );
+            };
+
+            modelBuilder.Entity<CarCategory>().HasData(carCategories);
+
+            //modelBuilder.Entity<Car>().HasData(
+            //    new
+            //    {
+            //        CarId = 1,
+            //        Name = "DeLorean",
+            //        MileageInKilometers = 123,
+            //        CarCategory = 1,
+            //        Available = true
+            //    },
+            //    new
+            //    {
+            //        CarId = 2,
+            //        Name = "Mystery Machine",
+            //        MileageInKilometers = 250,
+            //        CarCategory = 3,
+            //        Available = true,
+
+            //    },
+            //    new
+            //    {
+            //        CarId = 3,
+            //        MileageInKilometers = 999,
+            //        Name = "BatMobile",
+            //        CarCategory = 2,
+            //        Available = false
+            //    }
+            //);
         }
     }
 }
