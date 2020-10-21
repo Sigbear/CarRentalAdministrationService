@@ -17,7 +17,7 @@ POST: https://localhost:44379/api/orders
 Resultat blir ett json som beskriver objektet som har skapats:
 ```Json
 {
-  "orderId": [X],
+  "orderId": 11,
   "created": "2020-10-20T00:00:00",
   "closed": "0001-01-01T00:00:00",
   "customerDateOfBirth": "1987-01-12T00:00:00",
@@ -41,7 +41,7 @@ Passa på att ange en dato och mileage som är senare och större än hyrdatot r
 PATCH https://localhost:44379/api/orders
 ```
 {
-  "BookingNr": [X],
+  "BookingNr": 11,
   "ReturnDate": "2020-10-22",
  "MileageInKm": 275
 }
