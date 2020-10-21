@@ -78,7 +78,7 @@ namespace CarRentalAdministrationService.Controllers
 
         // Patch: api/orders
         [HttpPatch]
-        public async Task<ActionResult<ReturnOrderDto>> PostOrder(ReturnOrderDto returnOrderDto)
+        public async Task<ActionResult<ReturnOrderDto>> PatchOrder(ReturnOrderDto returnOrderDto)
         {
             Order order;
             try
