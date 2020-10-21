@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace CarRentalAdministrationService.Model
 {
@@ -40,36 +39,7 @@ namespace CarRentalAdministrationService.Model
                     KilometerPrice = 15
                 }
             };
-
             modelBuilder.Entity<CarCategory>().HasData(carCategories);
-
-            //modelBuilder.Entity<Car>().HasData(
-            //    new
-            //    {
-            //        CarId = 1,
-            //        Name = "DeLorean",
-            //        MileageInKilometers = 123,
-            //        CarCategory = 1,
-            //        Available = true
-            //    },
-            //    new
-            //    {
-            //        CarId = 2,
-            //        Name = "Mystery Machine",
-            //        MileageInKilometers = 250,
-            //        CarCategory = 3,
-            //        Available = true,
-
-            //    },
-            //    new
-            //    {
-            //        CarId = 3,
-            //        MileageInKilometers = 999,
-            //        Name = "BatMobile",
-            //        CarCategory = 2,
-            //        Available = false
-            //    }
-            //);
         }
     }
 }

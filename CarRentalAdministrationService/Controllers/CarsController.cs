@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CarRentalAdministrationService.Dto;
+using CarRentalAdministrationService.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CarRentalAdministrationService.Model;
-using CarRentalAdministrationService.Dto;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CarRentalAdministrationService.Controllers
 {
