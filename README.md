@@ -35,11 +35,12 @@ Resultat blir ett json som beskriver objektet som har skapats:
   }
 }
 ```
-För att lämna in bilen och avsluta ordren så kan et patch anrop göras på samma endpoint der man anger samma ordreId som man fekk som svar på post anropet
-Passa på att ange en dato och mileage som är senare och större än hyrdatot respektiva mileage på bilen annars kommer et 404 med ett meddelandet att returneras.
+För att lämna in bilen och avsluta ordren så kan et patch anrop göras på samma endpoint der man anger samma ordreId som man fick som svar på post anropet.
+Passa på att ange en dato och mileage som är senare och större än hyrdatot respektiva mileage på bilen annars kommer et 404 med ett felmeddelandet att returneras.
 
-PATCH https://localhost:44379/api/orders
+
 ```
+PATCH https://localhost:44379/api/orders
 {
   "BookingNr": 11,
   "ReturnDate": "2020-10-22",
